@@ -1,0 +1,26 @@
+# http server listen port
+port: 14789
+# path (prefix) of uploaded files
+path: "/opt/ftp"
+# offset to add to the mysql id for unix uids
+uid_offset: 10000
+# url (prefix) of the returned path
+url: "https://f.dille.cc/"
+# whether to copy the executable in /tmp so that it can be run by everyone
+copy_exe: false
+sql:
+  # username of the account with which to connect to MySQL
+  user: "gopostfile"
+  # password of the account with which to connect to MySQL
+  password: "THE GAME"
+  # IP/hostname of the MySQL server
+  host: "127.0.0.1"
+  # port of the MySQL server
+  port: 3306
+  # database to select for MySQL queries
+  db: users
+  # mysql command to run for authenticating users
+  # takes two parameters as input: user and password
+  # must return no row if no user matches, and one row if a user matches
+  # must have exactly one column, integer, which is the id of the user
+  request: "SELECT id FROM utilisateurs WHERE user = ? AND pass = ?"
