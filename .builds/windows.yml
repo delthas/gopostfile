@@ -1,0 +1,21 @@
+image: archlinux
+packages:
+  - git
+  - go
+  - upx
+sources:
+  - https://git.saucisseroyale.cc/delthas/gopostfile.git
+secrets:
+  - 63d7a0ac-2635-4d42-9709-efcd2cf74858 # ssh deploy key
+tasks:
+  - setup: |
+      cd gopostfile
+      git checkout -q $GIT_COMMIT_ID
+  - build: |
+      cd gopostfile
+      GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -v -o gopostfile.exe .
+      upx gopostfile.exe
+  - deploy: |
+      cd gopostfile
+      ssh -o StrictHostKeyChecking=no -q user@delthas.fr 'mkdir -p /srv/http/blog/gopostfile/windows/'
+      scp -o StrictHostKeyChecking=no -q gopostfile.exe user@delthas.fr:/srv/http/blog/gopostfile/windows/gopostfile.exe
