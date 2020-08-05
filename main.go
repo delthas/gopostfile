@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -224,13 +225,23 @@ func main() {
 			path = filepath.ToSlash(filepath.Clean(filepath.FromSlash(cwd + "/" + path)))
 		}
 
-		url := ""
+		pathParts := strings.Split(path, "/")
+		path = ""
+		for i, part := range pathParts {
+			if i > 0 {
+				path += "/"
+			}
+			path += url.PathEscape(part)
+		}
+
+		u := ""
 		for _, v := range config.Urls {
 			groups := v.Regex.FindStringSubmatch(path)
 			if groups == nil {
 				continue
 			}
-			u, err := percentTemplate(v.Url, func(match string) (string, error) {
+			var err error
+			u, err = percentTemplate(v.Url, func(match string) (string, error) {
 				switch match {
 				case "user":
 					return user, nil
@@ -252,12 +263,11 @@ func main() {
 				w.WriteHeader(500)
 				return
 			}
-			url = u
 			break
 		}
 
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(url))
+		w.Write([]byte(u))
 	})
 	fmt.Println("listening on localhost:" + strconv.Itoa(config.Port))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port), nil))
