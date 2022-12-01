@@ -266,8 +266,8 @@ func main() {
 			break
 		}
 
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(u))
+		w.Header().Set("Location", u)
+		w.WriteHeader(http.StatusCreated)
 	})
 	fmt.Println("listening on localhost:" + strconv.Itoa(config.Port))
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port), nil))
